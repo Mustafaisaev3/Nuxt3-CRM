@@ -1,0 +1,131 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@font-face {
+  font-family: 'Montserrat';
+  src:
+    local('Montserrat'),
+    url('/assets/fonts/Montserrat-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Montserrat-ExtraBold';
+  src: url('/assets/fonts/Montserrat-ExtraBold.ttf') format('truetype');
+  font-weight: bold;
+}
+
+:root {
+  /* --sidebar-width: calc(68 / 1200 * 100vw); зависимость от ширины экрана */
+}
+
+* {
+  box-sizing: border-box;
+  /* margin: 0;
+  padding: 0; */
+}
+
+.btn-common {
+  padding: 0.25rem; /* p-1 */
+  margin: 0 0.25rem; /* mx-1 */
+  width: 2.25rem; /* w-9 */
+  height: 2.25rem; /* h-9 */
+  color: #9ca3af; /* text-gray-400 */
+  border-radius: 0.25rem; /* rounded-lg */
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;}
+
+.btn-common:hover {
+    background-color: rgba(156, 163, 175, 0.5); /* hover:bg-gray-400 */
+    color: #ffffff;
+}
+
+.btn-common:focus {
+    z-index: 10; /* focus:z-10 */
+    box-shadow: 0 0 0 2px #d1d5db; /* focus:ring-2 focus:ring-gray-300 */
+    outline: none; /* focus:outline-none */
+}
+
+.btn-common.dark {
+    background-color: #1f2937; /* dark:bg-gray-800 */
+    color: #1f2937; /* dark:text-gray-400 */
+    border: 1px solid #4b5563; /* dark:border-gray-600 */
+}
+
+.btn-common.dark:hover {
+    background-color: #374151; /* dark:hover:bg-gray-700 */
+}
+
+.btn-common.dark:focus {
+      box-shadow: 0 0 0 2px #6b7280; /* dark:focus:ring-gray-500 */
+}
+
+@media screen and (max-width: 640px) {
+  .btn-common {
+    margin-bottom: -0.5rem; /* sm:-mb-2 */
+  }
+}
+
+.btn-additional {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  font-size: 0.75rem; /* Вместо text-xs */
+  font-weight: 500; /* Вместо font-medium */
+}
+
+.text-custom {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.text-extra-bold {
+  font-family: 'Montserrat-ExtraBold', sans-serif;
+}
+
+.text-gradient {
+  background: linear-gradient(226deg, #ff4025 25%, #6103ff, #10baf7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-dark {
+  background: -webkit-linear-gradient(226deg, #c59c45 35%,#731dbc,#2db9b0 65%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-dark {
+  background: linear-gradient(80deg, #EB14DE 25%, #2ED8B1, #FD6C19);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* .hover-custom:hover {
+  background-color: #d3d4f4;
+  color: white;
+} */
+.hover-custom:hover {
+  background-color: rgba(247, 250, 252, 0.1);
+  color: white;
+}
+
+body {
+  /* background-color: #e6d2e7; */
+  color: rgb(141, 150, 159);
+}
+.dark-mode body {
+	/* background-color: #162D3D;
+  color: #00FFBA;
+  border: 1px solid #00FFBA; */
+}
+.sepia-mode body {
+  background-color: #f1e7d0;
+  color: #87719f;
+}
+
+input, textarea, select {
+    @apply bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg block w-full p-2.5 hover:bg-gray-100;
+    @apply focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500 dark:focus:bg-gray-800;
+    @apply dark:placeholder-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-800;
+}

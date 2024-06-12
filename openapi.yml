@@ -1,0 +1,4169 @@
+openapi: 3.0.1
+info:
+  title: FiPi.Pro Проводник API
+  description: Проводник API документации
+  contact:
+    name: FiPi.Pro
+    url: https://fipi.pro
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+tags:
+  - name: Articles
+  - name: Comments
+  - name: Favorites
+  - name: Profile
+  - name: Tags
+  - name: Todos
+  - name: Tenants
+  - name: User and Authentication
+servers:
+  - url: http://127.0.0.1:8001/api
+paths:
+  /users/login:
+    post:
+      tags:
+        - User and Authentication
+      summary: Existing user login
+      description: Login for existing user
+      operationId: Login
+      requestBody:
+        $ref: '#/components/requestBodies/LoginUserRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      x-codegen-request-body-name: body
+  /users:
+    post:
+      tags:
+        - User and Authentication
+      description: Register a new user
+      operationId: CreateUser
+      requestBody:
+        $ref: '#/components/requestBodies/NewUserRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/UserResponse'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      x-codegen-request-body-name: body
+  /user:
+    get:
+      tags:
+        - User and Authentication
+      summary: Get current user
+      description: Gets the currently logged-in user
+      operationId: GetCurrentUser
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+    put:
+      tags:
+        - User and Authentication
+      summary: Update current user
+      description: Updated user information for current user
+      operationId: UpdateCurrentUser
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUserRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: body
+  /profiles/{username}:
+    get:
+      tags:
+        - Profile
+      summary: Get a profile
+      description: Get a profile of a user of the system. Auth is optional
+      operationId: GetProfileByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+  /profiles/{username}/follow:
+    post:
+      tags:
+        - Profile
+      summary: Follow a user
+      description: Follow a user by username
+      operationId: FollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to follow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+    delete:
+      tags:
+        - Profile
+      summary: Unfollow a user
+      description: Unfollow a user by username
+      operationId: UnfollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to unfollow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /articles/feed:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles from users you follow
+      description: Get most recent articles from users you follow. Use query parameters
+        to limit. Auth is required
+      operationId: GetArticlesFeed
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleArticlesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /articles:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles globally
+      description: Get most recent articles globally. Use query parameters to filter
+        results. Auth is optional
+      operationId: GetArticles
+      parameters:
+        - name: tag
+          in: query
+          description: Filter by tag
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter by author (username)
+          schema:
+            type: string
+        - name: favorited
+          in: query
+          description: Filter by favorites of a user (username)
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleArticlesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - Articles
+      summary: Create an article
+      description: Create an article. Auth is required
+      operationId: CreateArticle
+      requestBody:
+        $ref: '#/components/requestBodies/NewArticleRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: article
+  /articles/{slug}:
+    get:
+      tags:
+        - Articles
+      summary: Get an article
+      description: Get an article. Auth not required
+      operationId: GetArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    put:
+      tags:
+        - Articles
+      summary: Update an article
+      description: Update an article. Auth is required
+      operationId: UpdateArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateArticleRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: article
+    delete:
+      tags:
+        - Articles
+      summary: Delete an article
+      description: Delete an article. Auth is required
+      operationId: DeleteArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /articles/{slug}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get comments for an article
+      description: Get the comments for an article. Auth is optional
+      operationId: GetArticleComments
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to get comments for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleCommentsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - Comments
+      summary: Create a comment for an article
+      description: Create a comment for an article. Auth is required
+      operationId: CreateArticleComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to create a comment for
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/NewCommentRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleCommentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: comment
+  /articles/{slug}/comments/{id}:
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment for an article
+      description: Delete a comment for an article. Auth is required
+      operationId: DeleteArticleComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to delete a comment for
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ID of the comment you want to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /articles/{slug}/favorite:
+    post:
+      tags:
+        - Favorites
+      summary: Favorite an article
+      description: Favorite an article. Auth is required
+      operationId: CreateArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to favorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+    delete:
+      tags:
+        - Favorites
+      summary: Unfavorite an article
+      description: Unfavorite an article. Auth is required
+      operationId: DeleteArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to unfavorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleArticleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /tags:
+    get:
+      tags:
+        - Tags
+      summary: Get tags
+      description: Get tags. Auth not required
+      operationId: GetTags
+      responses:
+        '200':
+          $ref: '#/components/responses/TagsResponse'
+        '422':
+          $ref: '#/components/responses/GenericError'
+  /todos/feed:
+    get:
+      tags:
+        - Todos
+      summary: Get recent todos from users you follow
+      description: Get most recent todos from users you follow. Use query parameters
+        to limit. Auth is required
+      operationId: GetTodosFeed
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleTodosResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /todos:
+    get:
+      tags:
+        - Todos
+      summary: Get recent todos globally
+      description: Get most recent todos globally. Use query parameters to filter
+        results. Auth is optional
+      operationId: GetTodos
+      parameters:
+        - name: tag
+          in: query
+          description: Filter by tag
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter by author (username)
+          schema:
+            type: string
+        - name: favorited
+          in: query
+          description: Filter by favorites of a user (username)
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleTodosResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - Todos
+      summary: Create an todo
+      description: Create an todo. Auth is required
+      operationId: CreateTodo
+      requestBody:
+        $ref: '#/components/requestBodies/NewTodoRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/SingleTodoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: todo
+  /todos/{slug}:
+    get:
+      tags:
+        - Todos
+      summary: Get an todo
+      description: Get an todo. Auth not required
+      operationId: GetTodo
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleTodoResponse'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    put:
+      tags:
+        - Todos
+      summary: Update an todo
+      description: Update an todo. Auth is required
+      operationId: UpdateTodo
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateTodoRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleTodoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: todo
+    delete:
+      tags:
+        - Todos
+      summary: Delete an todo
+      description: Delete an todo. Auth is required
+      operationId: DeleteTodo
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /todos/{slug}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get comments for an todo
+      description: Get the comments for an todo. Auth is optional
+      operationId: GetTodoComments
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo that you want to get comments for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/MultipleCommentsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - Comments
+      summary: Create a comment for an todo
+      description: Create a comment for an todo. Auth is required
+      operationId: CreateTodoComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo that you want to create a comment for
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/NewCommentRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleCommentResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+      x-codegen-request-body-name: comment
+  /todos/{slug}/comments/{id}:
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment for an todo
+      description: Delete a comment for an todo. Auth is required
+      operationId: DeleteTodoComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo that you want to delete a comment for
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ID of the comment you want to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOkResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /todos/{slug}/favorite:
+    post:
+      tags:
+        - Favorites
+      summary: Favorite an todo
+      description: Favorite an todo. Auth is required
+      operationId: CreateTodoFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo that you want to favorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleTodoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+    delete:
+      tags:
+        - Favorites
+      summary: Unfavorite an todo
+      description: Unfavorite an todo. Auth is required
+      operationId: DeleteTodoFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the todo that you want to unfavorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleTodoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+      security:
+        - Token: []
+  /consumable:
+    get:
+      summary: Get all consumables
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new consumable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                consumableType:
+                  type: integer
+                  description: ID of the consumable type
+                consumableName:
+                  type: string
+                  description: Name of the consumable
+                consumableDescription:
+                  type: string
+                  description: Description of the consumable
+                consumablePhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the consumable
+                consumableQuantity:
+                  type: string
+                  description: Quantity of the consumable
+                consumableQuantityUnit:
+                  type: string
+                  description: Quantity unit of the consumable
+                consumableRelatedObject:
+                  type: string
+                  description: Related object of the consumable
+                consumableResponsiblePerson:
+                  type: string
+                  description: Responsible person for the consumable
+              required:
+                - consumableType
+                - consumableName
+      responses:
+        '201':
+          description: Created
+  /consumable/{id}:
+    get:
+      summary: Get a consumable by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the consumable
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a consumable by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the consumable
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                consumableType:
+                  type: integer
+                  description: ID of the consumable type
+                consumableName:
+                  type: string
+                  description: Name of the consumable
+                consumableDescription:
+                  type: string
+                  description: Description of the consumable
+                consumablePhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the consumable
+                consumableQuantity:
+                  type: string
+                  description: Quantity of the consumable
+                consumableQuantityUnit:
+                  type: string
+                  description: Quantity unit of the consumable
+                consumableRelatedObject:
+                  type: string
+                  description: Related object of the consumable
+                consumableResponsiblePerson:
+                  type: string
+                  description: Responsible person for the consumable
+              required:
+                - consumableType
+                - consumableName
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      summary: Delete a consumable by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the consumable
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /contracts:
+    get:
+      summary: Get all contracts
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new contract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractContractType:
+                  type: string
+                  description: Type of the contract
+                contractNumber:
+                  type: string
+                  description: Number of the contract
+                contractStartDate:
+                  type: string
+                  format: date
+                  description: Start date of the contract (YYYY-MM-DD)
+                contractEndDate:
+                  type: string
+                  format: date
+                  description: End date of the contract (YYYY-MM-DD)
+                contractEsignature:
+                  type: boolean
+                  description: Indicates if the contract has an electronic signature
+                contractEdo:
+                  type: boolean
+                  description: Indicates if the contract is electronically documented
+                tenant:
+                  type: integer
+                  description: ID of the tenant associated with the contract
+                goods:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of goods associated with the contract
+                relatedObjects:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of related objects associated with the contract
+                contractFile:
+                  type: string
+                  format: binary
+                  description: Contract file (PDF, Word, etc.)
+                contractPhotoPp:
+                  type: string
+                  format: binary
+                  description: Photo of the contract
+              required:
+                - contractContractType
+                - contractNumber
+                - contractStartDate
+                - tenant
+      responses:
+        '201':
+          description: Created
+  /contracts/{id}:
+    get:
+      summary: Get a contract by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a contract by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractContractType:
+                  type: string
+                  description: Type of the contract
+                contractNumber:
+                  type: string
+                  description: Number of the contract
+                contractStartDate:
+                  type: string
+                  format: date
+                  description: Start date of the contract (YYYY-MM-DD)
+                contractEndDate:
+                  type: string
+                  format: date
+                  description: End date of the contract (YYYY-MM-DD)
+                contractEsignature:
+                  type: boolean
+                  description: Indicates if the contract has an electronic signature
+                contractEdo:
+                  type: boolean
+                  description: Indicates if the contract is electronically documented
+                tenant:
+                  type: integer
+                  description: ID of the tenant associated with the contract
+                goods:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of goods associated with the contract
+                relatedObjects:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of related objects associated with the contract
+                contractFile:
+                  type: string
+                  format: binary
+                  description: Contract file (PDF, Word, etc.)
+                contractPhotoPp:
+                  type: string
+                  format: binary
+                  description: Photo of the contract
+              required:
+                - contractContractType
+                - contractNumber
+                - contractStartDate
+                - tenant
+      responses:
+        '200':
+          description: Successful response
+    patch:
+      summary: Partially update a contract by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractContractType:
+                  type: string
+                  description: Type of the contract
+                contractNumber:
+                  type: string
+                  description: Number of the contract
+                contractStartDate:
+                  type: string
+                  format: date
+                  description: Start date of the contract (YYYY-MM-DD)
+                contractEndDate:
+                  type: string
+                  format: date
+                  description: End date of the contract (YYYY-MM-DD)
+                contractEsignature:
+                  type: boolean
+                  description: Indicates if the contract has an electronic signature
+                contractEdo:
+                  type: boolean
+                  description: Indicates if the contract is electronically documented
+                tenant:
+                  type: integer
+                  description: ID of the tenant associated with the contract
+                goods:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of goods associated with the contract
+                relatedObjects:
+                  type: array
+                  items:
+                    type: integer
+                  description: IDs of related objects associated with the contract
+                contractFile:
+                  type: string
+                  format: binary
+                  description: Contract file (PDF, Word, etc.)
+                contractPhotoPp:
+                  type: string
+                  format: binary
+                  description: Photo of the contract
+              required:
+                - contractContractType
+                - contractNumber
+                - contractStartDate
+                - tenant
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      summary: Delete a contract by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /contracts/{contract_id}/payments/{payment_id}/:
+    delete:
+      summary: Delete a payment by ID under a contract
+      parameters:
+        - name: contract_id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+        - name: payment_id
+          in: path
+          required: true
+          description: ID of the payment
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /contracts/{id}/payments:
+    get:
+      summary: Get all payments under a contract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new payment under a contract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contract
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentFrequency:
+                  type: string
+                  description: Frequency of the payment
+                paymentMethod:
+                  type: string
+                  description: Method of the payment
+                paymentType:
+                  type: string
+                  description: Type of the payment
+                paymentRentCost:
+                  type: string
+                  description: Rent cost of the payment
+                paymentRentRate:
+                  type: string
+                  description: Rent rate of the payment
+                paymentCompensation:
+                  type: string
+                  description: Compensation of the payment
+                paymentSecurityDeposit:
+                  type: string
+                  description: Security deposit of the payment
+                paymentPaymentDuration:
+                  type: string
+                  format: date
+                  description: Payment duration of the payment (YYYY-MM-DD)
+                paymentIsPaid:
+                  type: boolean
+                  description: Indicates if the payment is paid
+              required:
+                - paymentFrequency
+                - paymentMethod
+                - paymentType
+                - paymentRentCost
+                - paymentRentRate
+                - paymentPaymentDuration
+      responses:
+        '201':
+          description: Created
+  /goods:
+    get:
+      summary: Get all goods
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new good
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                goodsName:
+                  type: string
+                  description: Name of the good
+                goodsInventoryNumber:
+                  type: string
+                  description: Inventory number of the good
+                goodsDescription:
+                  type: string
+                  description: Description of the good
+                goodsPhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the good
+                goodsConditionDescription:
+                  type: string
+                  description: Condition description of the good
+                goodsDamageDateTime:
+                  type: string
+                  description: Damage date and time of the good
+                goodsRelatedObject:
+                  type: string
+                  description: Related object of the good
+                goodsResponsiblePerson:
+                  type: string
+                  description: Responsible person for the good
+                goodsStatus:
+                  type: string
+                  description: Status of the good
+              required:
+                - goodsName
+  /goods/{id}:
+    get:
+      summary: Get a good by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the good
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a good by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the good
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                goodsName:
+                  type: string
+                  description: Name of the good
+                goodsInventoryNumber:
+                  type: string
+                  description: Inventory number of the good
+                goodsDescription:
+                  type: string
+                  description: Description of the good
+                goodsPhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the good
+                goodsConditionDescription:
+                  type: string
+                  description: Condition description of the good
+                goodsDamageDateTime:
+                  type: string
+                  description: Damage date and time of the good
+                goodsRelatedObject:
+                  type: string
+                  description: Related object of the good
+                goodsResponsiblePerson:
+                  type: string
+                  description: Responsible person for the good
+                goodsStatus:
+                  type: string
+                  description: Status of the good
+              required:
+                - goodsName
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleGoodsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+
+    delete:
+      summary: Delete a good by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the good
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /goods-types:
+    get:
+      summary: Get all goods types
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new goods type
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                goodsTypeName:
+                  type: string
+                  description: Name of the goods type
+              required:
+                - goodsTypeName
+  /goods-types/{id}:
+    get:
+      summary: Get a goods type by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the goods type
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a goods type by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the goods type
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /tenants/{id}:
+    get:
+      summary: Get a tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenantType:
+                  type: string
+                  description: Type of the tenant
+                organizationType:
+                  type: string
+                  description: Type of organization (if applicable)
+                tradeName:
+                  type: string
+                  description: Trade name of the tenant
+                tenantName:
+                  type: string
+                  description: Name of the tenant (for individuals)
+                tenantSurname:
+                  type: string
+                  description: Surname of the tenant (for individuals)
+                tenantPatronymic:
+                  type: string
+                  description: Patronymic of the tenant (for individuals)
+                tenantPassportSeries:
+                  type: string
+                  description: Passport series of the tenant (for individuals)
+                tenantPassportNumber:
+                  type: string
+                  description: Passport number of the tenant (for individuals)
+                tenantPassportIssuedBy:
+                  type: string
+                  description: Issuing authority of the tenant's passport (for individuals)
+                tenantPassportIssuedDate:
+                  type: string
+                  format: date
+                  description: Issuing date of the tenant's passport (for individuals) (YYYY-MM-DD)
+                tenantRegistration:
+                  type: string
+                  description: Registration info of the tenant (for individuals)
+                tenantCompanyName:
+                  type: string
+                  description: Company name of the tenant (for organizations)
+                tenantInn:
+                  type: string
+                  description: INN of the tenant (for organizations)
+                KPP:
+                  type: string
+                  description: KPP of the tenant (for organizations)
+                tenantOgrn:
+                  type: string
+                  description: OGRN of the tenant (for organizations)
+                bankDetails:
+                  type: string
+                  description: Bank details of the tenant (for organizations)
+                additionalInfo:
+                  type: string
+                  description: Additional information about the tenant
+              required:
+                - tenantType
+                - tradeName
+      responses:
+        '200':
+          $ref: '#/components/responses/SingleTenantResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/GenericError'
+
+    delete:
+      summary: Delete a tenant by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /tenants/{id}/contacts:
+    get:
+      summary: Get all contacts for a tenant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new contact for a tenant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contactTypeTenant:
+                  type: string
+                  description: Type of the contact
+                attitudeContactTypeTenant:
+                  type: string
+                  description: Attitude contact type
+                valueTenant:
+                  type: string
+                  description: Value of the contact
+                firstNameTenant:
+                  type: string
+                  description: First name of the contact
+                lastNameTenant:
+                  type: string
+                  description: Last name of the contact
+                organizationTenant:
+                  type: string
+                  description: Organization of the contact
+                jobTitleTenant:
+                  type: string
+                  description: Job title of the contact
+                addressTenant:
+                  type: string
+                  description: Address of the contact
+              required:
+                - contactTypeTenant
+                - valueTenant
+  /tenants/{tenant_id}/contacts/{contact_id}:
+    delete:
+      summary: Delete a contact for a tenant by ID
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          description: ID of the tenant
+          schema:
+            type: integer
+        - name: contact_id
+          in: path
+          required: true
+          description: ID of the contact
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /teams:
+    get:
+      summary: Get all teams
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new team
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                teamLastName:
+                  type: string
+                  description: Last name of the team member
+                teamFirstName:
+                  type: string
+                  description: First name of the team member
+                teamMiddleName:
+                  type: string
+                  description: Middle name of the team member
+                teamBirthDate:
+                  type: string
+                  description: Birth date of the team member
+                  format: date
+                teamPosition:
+                  type: string
+                  description: Position of the team member
+                teamWorkStartTime:
+                  type: string
+                  description: Work start time of the team member
+                teamWorkEndTime:
+                  type: string
+                  description: Work end time of the team member
+                teamMobile:
+                  type: string
+                  description: Mobile number of the team member
+                teamWorkPhone:
+                  type: string
+                  description: Work phone number of the team member
+                teamInternalNumber:
+                  type: string
+                  description: Internal number of the team member
+                teamEmail:
+                  type: string
+                  description: Email address of the team member
+                teamPersonalEmail:
+                  type: string
+                  description: Personal email address of the team member
+                teamWebsite:
+                  type: string
+                  description: Website URL of the team member
+              required:
+                - teamLastName
+                - teamFirstName
+                - teamPosition
+                - teamWorkStartTime
+  /teams/{id}:
+    get:
+      summary: Get a team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the team
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a team by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the team
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /work-team-zones:
+    get:
+      summary: Get all work team zones
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new work team zone
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                object_related:
+                  type: integer
+                  description: ID of the related object
+                team_related:
+                  type: array
+                  items:
+                    type: integer
+                  description: List of team IDs related to the zone
+              required:
+                - object_related
+                - team_related
+  /work-team-zones/{id}:
+    get:
+      summary: Get a work team zone by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the work team zone
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a work team zone by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the work team zone
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      summary: Delete a work team zone by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the work team zone
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-building:
+    get:
+      summary: Get all building properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new building property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombeBuilding:
+                  type: string
+                  description: Building number
+                buildingName:
+                  type: string
+                  description: Building name
+                yearBuilt:
+                  type: string
+                  description: Year the building was built
+              required:
+                - nombeBuilding
+                - buildingName
+                - yearBuilt
+  /properties-building/{id}:
+    get:
+      summary: Get a building property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the building property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a building property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the building property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a building property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the building property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a building property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the building property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-cluster:
+    get:
+      summary: Get all cluster properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new cluster property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clusterRegion:
+                  type: string
+                  description: Region of the cluster
+                clusterCity:
+                  type: string
+                  description: City of the cluster
+              required:
+                - clusterRegion
+                - clusterCity
+  /properties-cluster/{id}:
+    get:
+      summary: Get a cluster property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the cluster property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a cluster property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the cluster property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a cluster property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the cluster property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a cluster property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the cluster property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-entrance:
+    get:
+      summary: Get all entrance properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new entrance property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entranceNumber:
+                  type: integer
+                  description: Number of the entrance
+                entrancePlanImage:
+                  type: string
+                  format: binary
+                  description: Plan image of the entrance
+              required:
+                - entranceNumber
+                - entrancePlanImage
+  /properties-entrance/{id}:
+    get:
+      summary: Get an entrance property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the entrance property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update an entrance property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the entrance property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update an entrance property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the entrance property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete an entrance property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the entrance property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-floor:
+    get:
+      summary: Get all floor properties
+      responses:
+        '200':
+          description: Successful response
+    post:
+      summary: Create a new floor property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                floorNumber:
+                  type: integer
+                  description: Number of the floor
+                floorPlanImage:
+                  type: string
+                  format: binary
+                  description: Plan image of the floor
+              required:
+                - floorNumber
+                - floorPlanImage
+  /properties-floor/{id}:
+    get:
+      summary: Get a floor property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the floor property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    put:
+      summary: Update a floor property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the floor property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    patch:
+      summary: Partially update a floor property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the floor property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+    delete:
+      summary: Delete a floor property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the floor property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-object:
+    get:
+      summary: Get all object properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new object property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectAddress:
+                  type: string
+                  description: Address of the object
+                cadastreNumber:
+                  type: string
+                  description: Cadastre number of the object
+                buildingType:
+                  type: string
+                  description: Type of the building
+                purposePremises:
+                  type: string
+                  description: Purpose of the premises
+                technicalFeatures:
+                  type: string
+                  description: Technical features of the object
+                objectFiles:
+                  type: string
+                  format: binary
+                  description: Files associated with the object
+                objectImages:
+                  type: string
+                  format: binary
+                  description: Images associated with the object
+                objectVideos:
+                  type: string
+                  format: binary
+                  description: Videos associated with the object
+              required:
+                - objectAddress
+                - cadastreNumber
+                - buildingType
+                - purposePremises
+                - technicalFeatures
+  /properties-object/{id}:
+    get:
+      summary: Get an object property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the object property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update an object property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the object property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update an object property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the object property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete an object property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the object property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-objecttypenew:
+    get:
+      summary: Get all new object type properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new new object type property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                objectType:
+                  type: string
+                  description: Type of the object
+                nameObjectType:
+                  type: string
+                  description: Name of the object type
+              required:
+                - objectType
+                - nameObjectType
+  /properties-objecttypenew/{id}:
+    get:
+      summary: Get a new object type property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the new object type property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a new object type property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the new object type property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a new object type property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the new object type property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a new object type property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the new object type property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-purposepremises:
+    get:
+      summary: Get all purpose premises properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new purpose premises property
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                namePurposePremises:
+                  type: string
+                  description: Name of the purpose premises
+              required:
+                - namePurposePremises
+      responses:
+        '201':
+          description: Created
+  /properties-purposepremises/{id}:
+    get:
+      summary: Get a purpose premises property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the purpose premises property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a purpose premises property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the purpose premises property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a purpose premises property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the purpose premises property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a purpose premises property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the purpose premises property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-room:
+    get:
+      summary: Get all room properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new room property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roomNumber:
+                  type: string
+                  description: Room number
+                planNumber:
+                  type: string
+                  format: binary
+                  description: Plan number file
+                entrance:
+                  type: string
+                  description: Name of the entrance
+                area:
+                  type: string
+                  description: Area name
+                roomPlan:
+                  type: string
+                  format: binary
+                  description: Room plan file
+              required:
+                - roomNumber
+                - planNumber
+                - entrance
+                - area
+                - roomPlan
+  /properties-room/{id}:
+    get:
+      summary: Get a room property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the room property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a room property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the room property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a room property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the room property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a room property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the room property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+  /properties-territory:
+    get:
+      summary: Get all territory properties
+      responses:
+        '200':
+          description: Successful response
+
+    post:
+      summary: Create a new territory property
+      responses:
+        '201':
+          description: Created
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                territoryDistrict:
+                  type: string
+                  description: District of the territory
+                territoryMicrodistrict:
+                  type: string
+                  description: Microdistrict of the territory
+              required:
+                - territoryDistrict
+                - territoryMicrodistrict
+  /properties-territory/{id}:
+    get:
+      summary: Get a territory property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the territory property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    put:
+      summary: Update a territory property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the territory property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    patch:
+      summary: Partially update a territory property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the territory property
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    delete:
+      summary: Delete a territory property by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the territory property
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+
+components:
+  schemas:
+    LoginUser:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+    NewUser:
+      required:
+        - email
+        - password
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+    User:
+      required:
+        - bio
+        - email
+        - image
+        - token
+        - username
+      type: object
+      properties:
+        email:
+          type: string
+        token:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+    UpdateUser:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+    Profile:
+      required:
+        - bio
+        - following
+        - image
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+        following:
+          type: boolean
+    Article:
+      required:
+        - author
+        - body
+        - createdAt
+        - description
+        - favorited
+        - favoritesCount
+        - slug
+        - tagList
+        - title
+        - updatedAt
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        favorited:
+          type: boolean
+        favoritesCount:
+          type: integer
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewArticle:
+      required:
+        - body
+        - description
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+    UpdateArticle:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+    Todo:
+      required:
+        - author
+        - body
+        - createdAt
+        - description
+        - favorited
+        - favoritesCount
+        - id
+        - tagList
+        - title
+        - updatedAt
+        - is_complete
+        - status
+        - priority
+        - is_deleted
+        - is_active
+        - startTimedAt
+        - endTimedAt
+        - substacles
+        - supplierd
+        - suppliersCount
+        - supporterd
+        - supportersCount
+        - observerd
+        - observersCount
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        is_complete:
+          type: boolean
+        status:
+          type: string
+        priority:
+          type: string
+        is_deleted:
+          type: boolean
+        is_active:
+          type: boolean
+        tagList:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        startTimedAt:
+          type: string
+          format: date-time
+        endTimedAt:
+          type: string
+          format: date-time
+        favorited:
+          type: boolean
+        favoritesCount:
+          type: integer
+        supplierd:
+          type: boolean
+        suppliersCount:
+          type: integer
+        supporterd:
+          type: boolean
+        supportersCount:
+          type: integer
+        observerd:
+          type: boolean
+        observersCount:
+          type: integer
+        substacles:
+          type: array
+          items:
+            type: string
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewTodo:
+      required:
+        - body
+        - description
+        - title
+        - status
+        - priority
+        - startTimedAt
+        - endTimedAt
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        status:
+          type: string
+          enum:
+            - New
+            - Deleted
+            - Waiting
+            - Done
+          description: Статус
+        priority:
+          type: string
+          enum:
+            - Low
+            - Medium
+            - High
+          description: Приоритет
+        startTimedAt:
+          type: string
+          format: date-time
+        endTimedAt:
+          type: string
+          format: date-time
+    UpdateTodo:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        status:
+          type: string
+          enum:
+            - New
+            - Deleted
+            - Waiting
+            - Done
+          description: Статус
+        priority:
+          type: string
+          enum:
+            - Low
+            - Medium
+            - High
+          description: Приоритет
+        startTimedAt:
+          type: string
+          format: date-time
+        endTimedAt:
+          type: string
+          format: date-time
+    Comment:
+      required:
+        - author
+        - body
+        - createdAt
+        - id
+        - updatedAt
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        body:
+          type: string
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewComment:
+      required:
+        - body
+      type: object
+      properties:
+        body:
+          type: string
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantType:
+          type: string
+          description: Type of the tenant
+        organizationType:
+          type: string
+          description: Type of organization (if applicable)
+        tradeName:
+          type: string
+          description: Trade name of the tenant
+        tenantName:
+          type: string
+          description: Name of the tenant (for individuals)
+        tenantSurname:
+          type: string
+          description: Surname of the tenant (for individuals)
+        tenantPatronymic:
+          type: string
+          description: Patronymic of the tenant (for individuals)
+        tenantPassportSeries:
+          type: string
+          description: Passport series of the tenant (for individuals)
+        tenantPassportNumber:
+          type: string
+          description: Passport number of the tenant (for individuals)
+        tenantPassportIssuedBy:
+          type: string
+          description: Issuing authority of the tenant's passport (for individuals)
+        tenantPassportIssuedDate:
+          type: string
+          format: date
+          description: Issuing date of the tenant's passport (for individuals) (YYYY-MM-DD)
+        tenantRegistration:
+          type: string
+          description: Registration info of the tenant (for individuals)
+        tenantCompanyName:
+          type: string
+          description: Company name of the tenant (for organizations)
+        tenantInn:
+          type: string
+          description: INN of the tenant (for organizations)
+        KPP:
+          type: string
+          description: KPP of the tenant (for organizations)
+        tenantOgrn:
+          type: string
+          description: OGRN of the tenant (for organizations)
+        bankDetails:
+          type: string
+          description: Bank details of the tenant (for organizations)
+        additionalInfo:
+          type: string
+          description: Additional information about the tenant
+      required:
+        - id
+        - tenantType
+        - tradeName
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        contactTypeTenant:
+          type: string
+          description: Type of the contact
+        attitudeContactTypeTenant:
+          type: string
+          description: Attitude contact type
+        valueTenant:
+          type: string
+          description: Value of the contact
+        firstNameTenant:
+          type: string
+          description: First name of the contact
+        lastNameTenant:
+          type: string
+          description: Last name of the contact
+        organizationTenant:
+          type: string
+          description: Organization of the contact
+        jobTitleTenant:
+          type: string
+          description: Job title of the contact
+        addressTenant:
+          type: string
+          description: Address of the contact
+      required:
+        - id
+        - contactTypeTenant
+        - valueTenant
+    GenericErrorModel:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          required:
+            - body
+          type: object
+          properties:
+            body:
+              type: array
+              items:
+                type: string
+    Territory:
+      type: object
+      properties:
+        id:
+          type: integer
+        territoryDistrict:
+          type: string
+          description: District of the territory
+        territoryMicrodistrict:
+          type: string
+          description: Microdistrict of the territory
+      required:
+        - id
+        - territoryDistrict
+        - territoryMicrodistrict
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        roomNumber:
+          type: string
+          description: Room number
+        planNumber:
+          type: string
+          format: binary
+          description: Plan number file
+        entrance:
+          type: string
+          description: Name of the entrance
+        area:
+          type: string
+          description: Area name
+        roomPlan:
+          type: string
+          format: binary
+          description: Room plan file
+      required:
+        - id
+        - roomNumber
+        - planNumber
+        - entrance
+        - area
+        - roomPlan
+    ObjectTypeNew:
+      type: object
+      properties:
+        id:
+          type: integer
+        objectType:
+          type: string
+          description: Type of the object
+        nameObjectType:
+          type: string
+          description: Name of the object type
+      required:
+        - id
+        - objectType
+        - nameObjectType
+    PurposePremises:
+      type: object
+      properties:
+        id:
+          type: integer
+        namePurposePremises:
+          type: string
+          description: Name of the purpose premises
+      required:
+        - id
+        - namePurposePremises
+    ObjectProperty:
+      type: object
+      properties:
+        id:
+          type: integer
+        objectAddress:
+          type: string
+          description: Address of the object
+        cadastreNumber:
+          type: string
+          description: Cadastre number of the object
+        buildingType:
+          type: string
+          description: Type of the building
+        purposePremises:
+          type: string
+          description: Purpose of the premises
+        technicalFeatures:
+          type: string
+          description: Technical features of the object
+        objectFiles:
+          type: string
+          format: binary
+          description: Files associated with the object
+        objectImages:
+          type: string
+          format: binary
+          description: Images associated with the object
+        objectVideos:
+          type: string
+          format: binary
+          description: Videos associated with the object
+      required:
+        - id
+        - objectAddress
+        - cadastreNumber
+        - buildingType
+        - purposePremises
+        - technicalFeatures
+    FloorProperty:
+      type: object
+      properties:
+        id:
+          type: integer
+        floorNumber:
+          type: integer
+          description: Number of the floor
+        floorPlanImage:
+          type: string
+          format: binary
+          description: Plan image of the floor
+      required:
+        - id
+        - floorNumber
+        - floorPlanImage
+    EntranceProperty:
+      type: object
+      properties:
+        id:
+          type: integer
+        entranceNumber:
+          type: integer
+          description: Number of the entrance
+        entrancePlanImage:
+          type: string
+          format: binary
+          description: Plan image of the entrance
+      required:
+        - id
+        - entranceNumber
+        - entrancePlanImage
+    BuildingProperty:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombeBuilding:
+          type: string
+          description: Building number
+        buildingName:
+          type: string
+          description: Building name
+        yearBuilt:
+          type: string
+          description: Year the building was built
+      required:
+        - id
+        - nombeBuilding
+        - buildingName
+        - yearBuilt
+    ClusterProperty:
+      type: object
+      properties:
+        id:
+          type: integer
+        clusterRegion:
+          type: string
+          description: Region of the cluster
+        clusterCity:
+          type: string
+          description: City of the cluster
+      required:
+        - id
+        - clusterRegion
+        - clusterCity
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+        teamLastName:
+          type: string
+          description: Last name of the team member
+        teamFirstName:
+          type: string
+          description: First name of the team member
+        teamMiddleName:
+          type: string
+          description: Middle name of the team member
+        teamBirthDate:
+          type: string
+          format: date
+          description: Birth date of the team member
+        teamPosition:
+          type: string
+          description: Position of the team member
+        teamWorkStartTime:
+          type: string
+          description: Work start time of the team member
+        teamWorkEndTime:
+          type: string
+          description: Work end time of the team member
+        teamMobile:
+          type: string
+          description: Mobile number of the team member
+        teamWorkPhone:
+          type: string
+          description: Work phone number of the team member
+        teamInternalNumber:
+          type: string
+          description: Internal number of the team member
+        teamEmail:
+          type: string
+          description: Email address of the team member
+        teamPersonalEmail:
+          type: string
+          description: Personal email address of the team member
+        teamWebsite:
+          type: string
+          description: Website URL of the team member
+      required:
+        - id
+        - teamLastName
+        - teamFirstName
+        - teamPosition
+        - teamWorkStartTime
+    WorkTeamZone:
+      type: object
+      properties:
+        id:
+          type: integer
+        object_related:
+          type: integer
+          description: ID of the related object
+        team_related:
+          type: array
+          items:
+            type: integer
+          description: List of team IDs related to the zone
+      required:
+        - id
+        - object_related
+        - team_related
+    Good:
+      type: object
+      properties:
+        id:
+          type: integer
+        goodsName:
+          type: string
+          description: Name of the good
+        goodsInventoryNumber:
+          type: string
+          description: Inventory number of the good
+        goodsDescription:
+          type: string
+          description: Description of the good
+        goodsPhoto:
+          type: string
+          description: Photo of the good (base64 encoded)
+        goodsConditionDescription:
+          type: string
+          description: Condition description of the good
+        goodsDamageDateTime:
+          type: string
+          description: Damage date and time of the good
+        goodsRelatedObject:
+          type: string
+          description: Related object of the good
+        goodsResponsiblePerson:
+          type: string
+          description: Responsible person for the good
+        goodsStatus:
+          type: string
+          description: Status of the good
+      required:
+        - id
+        - goodsName
+    GoodsType:
+      type: object
+      properties:
+        id:
+          type: integer
+        goodsTypeName:
+          type: string
+          description: Name of the goods type
+      required:
+        - id
+        - goodsTypeName
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+        contractContractType:
+          type: string
+          description: Type of the contract
+        contractNumber:
+          type: string
+          description: Number of the contract
+        contractStartDate:
+          type: string
+          format: date
+          description: Start date of the contract (YYYY-MM-DD)
+        contractEndDate:
+          type: string
+          format: date
+          description: End date of the contract (YYYY-MM-DD)
+        contractEsignature:
+          type: boolean
+          description: Indicates if the contract has an electronic signature
+        contractEdo:
+          type: boolean
+          description: Indicates if the contract is electronically documented
+        tenant:
+          type: integer
+          description: ID of the tenant associated with the contract
+        goods:
+          type: array
+          items:
+            type: integer
+          description: IDs of goods associated with the contract
+        relatedObjects:
+          type: array
+          items:
+            type: integer
+          description: IDs of related objects associated with the contract
+        contractFile:
+          type: string
+          description: Contract file (PDF, Word, etc.)
+        contractPhotoPp:
+          type: string
+          description: Photo of the contract
+      required:
+        - id
+        - contractContractType
+        - contractNumber
+        - contractStartDate
+        - tenant
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        paymentFrequency:
+          type: string
+          description: Frequency of the payment
+        paymentMethod:
+          type: string
+          description: Method of the payment
+        paymentType:
+          type: string
+          description: Type of the payment
+        paymentRentCost:
+          type: string
+          description: Rent cost of the payment
+        paymentRentRate:
+          type: string
+          description: Rent rate of the payment
+        paymentCompensation:
+          type: string
+          description: Compensation of the payment
+        paymentSecurityDeposit:
+          type: string
+          description: Security deposit of the payment
+        paymentPaymentDuration:
+          type: string
+          format: date
+          description: Payment duration of the payment (YYYY-MM-DD)
+        paymentIsPaid:
+          type: boolean
+          description: Indicates if the payment is paid
+      required:
+        - id
+        - paymentFrequency
+        - paymentMethod
+        - paymentType
+        - paymentRentCost
+        - paymentRentRate
+        - paymentPaymentDuration
+    Consumable:
+      type: object
+      properties:
+        id:
+          type: integer
+        consumableType:
+          type: integer
+          description: ID of the consumable type
+        consumableName:
+          type: string
+          description: Name of the consumable
+        consumableDescription:
+          type: string
+          description: Description of the consumable
+        consumablePhoto:
+          type: string
+          description: Photo of the consumable
+        consumableQuantity:
+          type: string
+          description: Quantity of the consumable
+        consumableQuantityUnit:
+          type: string
+          description: Quantity unit of the consumable
+        consumableRelatedObject:
+          type: string
+          description: Related object of the consumable
+        consumableResponsiblePerson:
+          type: string
+          description: Responsible person for the consumable
+      required:
+        - id
+        - consumableType
+        - consumableName
+  responses:
+    TagsResponse:
+      description: Tags
+      content:
+        application/json:
+          schema:
+            required:
+              - tags
+            type: object
+            properties:
+              tags:
+                type: array
+                items:
+                  type: string
+    SingleCommentResponse:
+      description: Single comment
+      content:
+        application/json:
+          schema:
+            required:
+              - comment
+            type: object
+            properties:
+              comment:
+                $ref: '#/components/schemas/Comment'
+    MultipleCommentsResponse:
+      description: Multiple comments
+      content:
+        application/json:
+          schema:
+            required:
+              - comments
+            type: object
+            properties:
+              comments:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    SingleArticleResponse:
+      description: Single article
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/Article'
+    MultipleArticlesResponse:
+      description: Multiple articles
+      content:
+        application/json:
+          schema:
+            required:
+              - articles
+              - articlesCount
+            type: object
+            properties:
+              articles:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+              articlesCount:
+                type: integer
+    ProfileResponse:
+      description: Profile
+      content:
+        application/json:
+          schema:
+            required:
+              - profile
+            type: object
+            properties:
+              profile:
+                $ref: '#/components/schemas/Profile'
+    UserResponse:
+      description: User
+      content:
+        application/json:
+          schema:
+            required:
+              - user
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/User'
+    EmptyOkResponse:
+      description: No content
+      content: {}
+    Unauthorized:
+      description: Unauthorized
+      content: {}
+    GenericError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericErrorModel'
+    SingleTodoResponse:
+      description: Response containing a single todo
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Todo'
+    MultipleTodosResponse:
+      description: Response containing a list of todos
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Todo'
+    SingleConsumableResponse:
+      description: Response containing a single consumable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Consumable'
+    MultipleConsumablesResponse:
+      description: Response containing a list of consumables
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Consumable'
+
+  requestBodies:
+    NewTodoRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Title of the todo
+              description:
+                type: string
+                description: Description of the todo
+              dueDate:
+                type: string
+                format: date
+                description: Due date of the todo
+            required:
+              - title
+              - description
+    UpdateTodoRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Updated title of the todo
+              description:
+                type: string
+                description: Updated description of the todo
+              dueDate:
+                type: string
+                format: date
+                description: Updated due date of the todo
+            required:
+              - title
+              - description
+    LoginUserRequest:
+      required: true
+      description: Credentials to use
+      content:
+        application/json:
+          schema:
+            required:
+              - user
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/LoginUser'
+    NewUserRequest:
+      required: true
+      description: Details of the new user to register
+      content:
+        application/json:
+          schema:
+            required:
+              - user
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/NewUser'
+    UpdateUserRequest:
+      required: true
+      description: User details to update. At least **one** field is required.
+      content:
+        application/json:
+          schema:
+            required:
+              - user
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/UpdateUser'
+    NewArticleRequest:
+      required: true
+      description: Article to create
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/NewArticle'
+    UpdateArticleRequest:
+      required: true
+      description: Article to update
+      content:
+        application/json:
+          schema:
+            required:
+              - article
+            type: object
+            properties:
+              article:
+                $ref: '#/components/schemas/UpdateArticle'
+    NewCommentRequest:
+      required: true
+      description: Comment you want to create
+      content:
+        application/json:
+          schema:
+            required:
+              - comment
+            type: object
+            properties:
+              comment:
+                $ref: '#/components/schemas/NewComment'
+    ConsumableCreateRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              consumableType:
+                type: integer
+                description: ID of the consumable type
+              consumableName:
+                type: string
+                description: Name of the consumable
+              consumableDescription:
+                type: string
+                description: Description of the consumable
+              consumablePhoto:
+                type: string
+                format: binary
+                description: Photo of the consumable
+              consumableQuantity:
+                type: string
+                description: Quantity of the consumable
+              consumableQuantityUnit:
+                type: string
+                description: Quantity unit of the consumable
+              consumableRelatedObject:
+                type: string
+                description: Related object of the consumable
+              consumableResponsiblePerson:
+                type: string
+                description: Responsible person for the consumable
+            required:
+              - consumableType
+              - consumableName
+    ConsumableUpdateRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              consumableType:
+                type: integer
+                description: ID of the consumable type
+              consumableName:
+                type: string
+                description: Name of the consumable
+              consumableDescription:
+                type: string
+                description: Description of the consumable
+              consumablePhoto:
+                type: string
+                format: binary
+                description: Photo of the consumable
+              consumableQuantity:
+                type: string
+                description: Quantity of the consumable
+              consumableQuantityUnit:
+                type: string
+                description: Quantity unit of the consumable
+              consumableRelatedObject:
+                type: string
+                description: Related object of the consumable
+              consumableResponsiblePerson:
+                type: string
+                description: Responsible person for the consumable
+            required:
+              - consumableType
+              - consumableName
+    CreateContractRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contractContractType:
+                type: string
+                description: Type of the contract
+              contractNumber:
+                type: string
+                description: Number of the contract
+              contractStartDate:
+                type: string
+                format: date
+                description: Start date of the contract (YYYY-MM-DD)
+              contractEndDate:
+                type: string
+                format: date
+                description: End date of the contract (YYYY-MM-DD)
+              contractEsignature:
+                type: boolean
+                description: Indicates if the contract has an electronic signature
+              contractEdo:
+                type: boolean
+                description: Indicates if the contract is electronically documented
+              tenant:
+                type: integer
+                description: ID of the tenant associated with the contract
+              goods:
+                type: array
+                items:
+                  type: integer
+                description: IDs of goods associated with the contract
+              relatedObjects:
+                type: array
+                items:
+                  type: integer
+                description: IDs of related objects associated with the contract
+              contractFile:
+                type: string
+                format: binary
+                description: Contract file (PDF, Word, etc.)
+              contractPhotoPp:
+                type: string
+                format: binary
+                description: Photo of the contract
+            required:
+              - contractContractType
+              - contractNumber
+              - contractStartDate
+              - tenant
+    UpdateContractRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contractContractType:
+                type: string
+                description: Type of the contract
+              contractNumber:
+                type: string
+                description: Number of the contract
+              contractStartDate:
+                type: string
+                format: date
+                description: Start date of the contract (YYYY-MM-DD)
+              contractEndDate:
+                type: string
+                format: date
+                description: End date of the contract (YYYY-MM-DD)
+              contractEsignature:
+                type: boolean
+                description: Indicates if the contract has an electronic signature
+              contractEdo:
+                type: boolean
+                description: Indicates if the contract is electronically documented
+              tenant:
+                type: integer
+                description: ID of the tenant associated with the contract
+              goods:
+                type: array
+                items:
+                  type: integer
+                description: IDs of goods associated with the contract
+              relatedObjects:
+                type: array
+                items:
+                  type: integer
+                description: IDs of related objects associated with the contract
+              contractFile:
+                type: string
+                format: binary
+                description: Contract file (PDF, Word, etc.)
+              contractPhotoPp:
+                type: string
+                format: binary
+                description: Photo of the contract
+            required:
+              - contractContractType
+              - contractNumber
+              - contractStartDate
+              - tenant
+    CreateGoodRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              goodsName:
+                type: string
+                description: Name of the good
+              goodsInventoryNumber:
+                type: string
+                description: Inventory number of the good
+              goodsDescription:
+                type: string
+                description: Description of the good
+              goodsPhoto:
+                type: string
+                format: binary
+                description: Photo of the good
+              goodsConditionDescription:
+                type: string
+                description: Condition description of the good
+              goodsDamageDateTime:
+                type: string
+                description: Damage date and time of the good
+              goodsRelatedObject:
+                type: string
+                description: Related object of the good
+              goodsResponsiblePerson:
+                type: string
+                description: Responsible person for the good
+              goodsStatus:
+                type: string
+                description: Status of the good
+            required:
+              - goodsName
+    UpdateGoodRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              goodsName:
+                type: string
+                description: Name of the good
+              goodsInventoryNumber:
+                type: string
+                description: Inventory number of the good
+              goodsDescription:
+                type: string
+                description: Description of the good
+              goodsPhoto:
+                type: string
+                format: binary
+                description: Photo of the good
+              goodsConditionDescription:
+                type: string
+                description: Condition description of the good
+              goodsDamageDateTime:
+                type: string
+                description: Damage date and time of the good
+              goodsRelatedObject:
+                type: string
+                description: Related object of the good
+              goodsResponsiblePerson:
+                type: string
+                description: Responsible person for the good
+              goodsStatus:
+                type: string
+                description: Status of the good
+            required:
+              - goodsName
+    CreateGoodsTypeRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              goodsTypeName:
+                type: string
+                description: Name of the goods type
+            required:
+              - goodsTypeName
+    CreateTenantRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              tenantType:
+                type: string
+                description: Type of the tenant
+              organizationType:
+                type: string
+                description: Type of organization (if applicable)
+              tradeName:
+                type: string
+                description: Trade name of the tenant
+              tenantName:
+                type: string
+                description: Name of the tenant (for individuals)
+              tenantSurname:
+                type: string
+                description: Surname of the tenant (for individuals)
+              tenantPatronymic:
+                type: string
+                description: Patronymic of the tenant (for individuals)
+              tenantPassportSeries:
+                type: string
+                description: Passport series of the tenant (for individuals)
+              tenantPassportNumber:
+                type: string
+                description: Passport number of the tenant (for individuals)
+              tenantPassportIssuedBy:
+                type: string
+                description: Issuing authority of the tenant's passport (for individuals)
+              tenantPassportIssuedDate:
+                type: string
+                format: date
+                description: Issuing date of the tenant's passport (for individuals) (YYYY-MM-DD)
+              tenantRegistration:
+                type: string
+                description: Registration info of the tenant (for individuals)
+              tenantCompanyName:
+                type: string
+                description: Company name of the tenant (for organizations)
+              tenantInn:
+                type: string
+                description: INN of the tenant (for organizations)
+              KPP:
+                type: string
+                description: KPP of the tenant (for organizations)
+              tenantOgrn:
+                type: string
+                description: OGRN of the tenant (for organizations)
+              bankDetails:
+                type: string
+                description: Bank details of the tenant (for organizations)
+              additionalInfo:
+                type: string
+                description: Additional information about the tenant
+            required:
+              - tenantType
+              - tradeName
+    UpdateTenantRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              tenantType:
+                type: string
+                description: Type of the tenant
+              organizationType:
+                type: string
+                description: Type of organization (if applicable)
+              tradeName:
+                type: string
+                description: Trade name of the tenant
+              tenantName:
+                type: string
+                description: Name of the tenant (for individuals)
+              tenantSurname:
+                type: string
+                description: Surname of the tenant (for individuals)
+              tenantPatronymic:
+                type: string
+                description: Patronymic of the tenant (for individuals)
+              tenantPassportSeries:
+                type: string
+                description: Passport series of the tenant (for individuals)
+              tenantPassportNumber:
+                type: string
+                description: Passport number of the tenant (for individuals)
+              tenantPassportIssuedBy:
+                type: string
+                description: Issuing authority of the tenant's passport (for individuals)
+              tenantPassportIssuedDate:
+                type: string
+                format: date
+                description: Issuing date of the tenant's passport (for individuals) (YYYY-MM-DD)
+              tenantRegistration:
+                type: string
+                description: Registration info of the tenant (for individuals)
+              tenantCompanyName:
+                type: string
+                description: Company name of the tenant (for organizations)
+              tenantInn:
+                type: string
+                description: INN of the tenant (for organizations)
+              KPP:
+                type: string
+                description: KPP of the tenant (for organizations)
+              tenantOgrn:
+                type: string
+                description: OGRN of the tenant (for organizations)
+              bankDetails:
+                type: string
+                description: Bank details of the tenant (for organizations)
+              additionalInfo:
+                type: string
+                description: Additional information about the tenant
+            required:
+              - tenantType
+              - tradeName
+    CreateTenantContactRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contactTypeTenant:
+                type: string
+                description: Type of the contact
+              attitudeContactTypeTenant:
+                type: string
+                description: Attitude contact type
+              valueTenant:
+                type: string
+                description: Value of the contact
+              firstNameTenant:
+                type: string
+                description: First name of the contact
+              lastNameTenant:
+                type: string
+                description: Last name of the contact
+              organizationTenant:
+                type: string
+                description: Organization of the contact
+              jobTitleTenant:
+                type: string
+                description: Job title of the contact
+              addressTenant:
+                type: string
+                description: Address of the contact
+            required:
+              - contactTypeTenant
+              - valueTenant
+    CreateTeamRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              teamLastName:
+                type: string
+                description: Last name of the team member
+              teamFirstName:
+                type: string
+                description: First name of the team member
+              teamMiddleName:
+                type: string
+                description: Middle name of the team member
+              teamBirthDate:
+                type: string
+                description: Birth date of the team member
+                format: date
+              teamPosition:
+                type: string
+                description: Position of the team member
+              teamWorkStartTime:
+                type: string
+                description: Work start time of the team member
+              teamWorkEndTime:
+                type: string
+                description: Work end time of the team member
+              teamMobile:
+                type: string
+                description: Mobile number of the team member
+              teamWorkPhone:
+                type: string
+                description: Work phone number of the team member
+              teamInternalNumber:
+                type: string
+                description: Internal number of the team member
+              teamEmail:
+                type: string
+                description: Email address of the team member
+              teamPersonalEmail:
+                type: string
+                description: Personal email address of the team member
+              teamWebsite:
+                type: string
+                description: Website URL of the team member
+            required:
+              - teamLastName
+              - teamFirstName
+              - teamPosition
+              - teamWorkStartTime
+    CreateWorkTeamZoneRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              object_related:
+                type: integer
+                description: ID of the related object
+              team_related:
+                type: array
+                items:
+                  type: integer
+                description: List of team IDs related to the zone
+            required:
+              - object_related
+              - team_related
+    CreateBuildingPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              nombeBuilding:
+                type: string
+                description: Building number
+              buildingName:
+                type: string
+                description: Building name
+              yearBuilt:
+                type: string
+                description: Year the building was built
+            required:
+              - nombeBuilding
+              - buildingName
+              - yearBuilt
+    CreateClusterPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              clusterRegion:
+                type: string
+                description: Region of the cluster
+              clusterCity:
+                type: string
+                description: City of the cluster
+            required:
+              - clusterRegion
+              - clusterCity
+    CreateEntrancePropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              entranceNumber:
+                type: integer
+                description: Number of the entrance
+              entrancePlanImage:
+                type: string
+                format: binary
+                description: Plan image of the entrance
+            required:
+              - entranceNumber
+              - entrancePlanImage
+    CreateFloorPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              floorNumber:
+                type: integer
+                description: Number of the floor
+              floorPlanImage:
+                type: string
+                format: binary
+                description: Plan image of the floor
+            required:
+              - floorNumber
+              - floorPlanImage
+    CreateObjectPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              objectAddress:
+                type: string
+                description: Address of the object
+              cadastreNumber:
+                type: string
+                description: Cadastre number of the object
+              buildingType:
+                type: string
+                description: Type of the building
+              purposePremises:
+                type: string
+                description: Purpose of the premises
+              technicalFeatures:
+                type: string
+                description: Technical features of the object
+              objectFiles:
+                type: string
+                format: binary
+                description: Files associated with the object
+              objectImages:
+                type: string
+                format: binary
+                description: Images associated with the object
+              objectVideos:
+                type: string
+                format: binary
+                description: Videos associated with the object
+            required:
+              - objectAddress
+              - cadastreNumber
+              - buildingType
+              - purposePremises
+              - technicalFeatures
+    CreateObjectTypePropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              objectType:
+                type: string
+                description: Type of the object
+              nameObjectType:
+                type: string
+                description: Name of the object type
+            required:
+              - objectType
+              - nameObjectType
+    CreatePurposePremisesPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              namePurposePremises:
+                type: string
+                description: Name of the purpose premises
+            required:
+              - namePurposePremises
+    CreateRoomPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              roomNumber:
+                type: string
+                description: Room number
+              planNumber:
+                type: string
+                format: binary
+                description: Plan number file
+              entrance:
+                type: string
+                description: Name of the entrance
+              area:
+                type: string
+                description: Area name
+              roomPlan:
+                type: string
+                format: binary
+                description: Room plan file
+            required:
+              - roomNumber
+              - planNumber
+              - entrance
+              - area
+              - roomPlan
+    CreateTerritoryPropertyRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              territoryDistrict:
+                type: string
+                description: District of the territory
+              territoryMicrodistrict:
+                type: string
+                description: Microdistrict of the territory
+            required:
+              - territoryDistrict
+              - territoryMicrodistrict
+  parameters:
+    offsetParam:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+      description: The numbers of items to return.
+  securitySchemes:
+    Token:
+      type: apiKey
+      description: "For accessing the protected API resources, you must have received\
+        \ a a valid JWT token after registering or logging in. This JWT token must\
+        \ then be used for all protected resources by passing it in via the 'Authorization'\
+        \ header.\n\nA JWT token is generated by the API by either registering via\
+        \ /users or logging in via /users/login.\n\nThe following format must be in\
+        \ the 'Authorization' header :\n\n    Token xxxxxx.yyyyyyy.zzzzzz\n    \n"
+      name: Authorization
+      in: header

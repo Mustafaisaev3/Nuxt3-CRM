@@ -1,0 +1,143 @@
+consumable
+GET /consumable
+POST /consumable
+GET /consumable/{id}
+PUT /consumable/{id}
+DELETE /consumable/{id}
+
+contracts
+GET /contracts
+POST /contracts
+DELETE /contracts/{contract_id}/payments/{payment_id}/
+GET /contracts/{id}
+PUT /contracts/{id}
+PATCH /contracts/{id}
+DELETE /contracts/{id}
+GET /contracts/{id}/payments
+POST /contracts/{id}/payments
+
+goods
+GET /goods
+POST /goods
+GET /goods/{id}
+PUT /goods/{id}
+DELETE /goods/{id}
+
+goods-types
+GET /goods-types
+POST /goods-types
+GET /goods-types/{id}
+DELETE /goods-types/{id}
+
+properties-building
+GET /properties-building
+POST /properties-building
+GET /properties-building/{id}
+PUT /properties-building/{id}
+PATCH /properties-building/{id}
+DELETE /properties-building/{id}
+
+properties-cluster
+GET /properties-cluster
+POST /properties-cluster
+GET /properties-cluster/{id}
+PUT /properties-cluster/{id}
+PATCH /properties-cluster/{id}
+DELETE /properties-cluster/{id}
+
+properties-entrance
+GET /properties-entrance
+POST /properties-entrance
+GET /properties-entrance/{id}
+PUT /properties-entrance/{id}
+PATCH /properties-entrance/{id}
+DELETE /properties-entrance/{id}
+
+properties-floor
+GET /properties-floor
+POST /properties-floor
+GET /properties-floor/{id}
+PUT /properties-floor/{id}
+PATCH /properties-floor/{id}
+DELETE /properties-floor/{id}
+
+properties-object
+GET /properties-object
+POST /properties-object
+GET /properties-object/{id}
+PUT /properties-object/{id}
+PATCH /properties-object/{id}
+DELETE /properties-object/{id}
+
+properties-objecttypenew
+GET /properties-objecttypenew
+POST /properties-objecttypenew
+GET /properties-objecttypenew/{id}
+PUT /properties-objecttypenew/{id}
+PATCH /properties-objecttypenew/{id}
+DELETE /properties-objecttypenew/{id}
+
+properties-purposepremises
+GET /properties-purposepremises
+POST /properties-purposepremises
+GET /properties-purposepremises/{id}
+PUT /properties-purposepremises/{id}
+PATCH /properties-purposepremises/{id}
+DELETE /properties-purposepremises/{id}
+
+properties-room
+GET /properties-room
+POST /properties-room
+GET /properties-room/{id}
+PUT /properties-room/{id}
+PATCH /properties-room/{id}
+DELETE /properties-room/{id}
+
+properties-territory
+GET /properties-territory
+POST /properties-territory
+GET /properties-territory/{id}
+PUT /properties-territory/{id}
+PATCH /properties-territory/{id}
+DELETE /properties-territory/{id}
+
+teams
+GET /teams
+POST /teams
+GET /teams/{id}
+PUT /teams/{id}
+PATCH /teams/{id}
+DELETE /teams/{id}
+
+tenants
+GET /tenants
+POST /tenants
+GET /tenants/{id}
+PUT /tenants/{id}
+DELETE /tenants/{id}
+GET /tenants/{id}/contacts
+POST /tenants/{id}/contacts
+DELETE /tenants/{tenant_id}/contacts/{contact_id}/
+
+work-team-zones
+GET /work-team-zones
+POST /work-team-zones
+GET /work-team-zones/{id}
+PUT /work-team-zones/{id}
+DELETE /work-team-zones/{id}
+
+
+		articles    Статьи 
+    todos        Задачи
+    teams        Команда
+		
+    properties  Недвижимость
+    	goods        Имущество
+    	histories		Журналы обслуживания
+    	tenants      Арендаторы
+
+    documentsflow                  Документы
+    documentsflow.contracts       контракты
+    documentsflow.techdoc          Техническая документация
+    documentsflow.titledocuments  Правоустанавливающие документы
+    documentsflow.techfeatures    Технические особенности
