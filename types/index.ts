@@ -12,9 +12,9 @@ export type ArticleComment = components['schemas']['Comment'];
 
 // -----  Todos ----- //
 
-// Тип данных для задачи
+// Тип данных для Todos
 export type Todo = components['schemas']['Todo'];
-// Тип данных для комментария к задаче
+// Тип данных для комментария к Todos
 export type TodoComment = components['schemas']['Comment'];
 
 // -----  Todos ----- //
@@ -22,7 +22,7 @@ export type TodoComment = components['schemas']['Comment'];
 
 // -----  Tenants ----- //
 
-// Тип данных для арендаторов
+// Тип данных для Tenants
 export type Tenant = components['schemas']['Tenant'];
 // Тип данных для контакта к арендатоу
 export type TenantContact = components['schemas']['Contact'];
@@ -32,7 +32,7 @@ export type TenantContact = components['schemas']['Contact'];
 
 // -----  Teams ----- //
 
-// Тип данных для Команды
+// Тип данных для Teams
 export type Team = components['schemas']['Team'];
 export type TeamWorkZone = components['schemas']['WorkTeamZone'];
 
@@ -41,7 +41,7 @@ export type TeamWorkZone = components['schemas']['WorkTeamZone'];
 
 // -----  Object Property ----- //
 
-// Тип данных для Команды
+// Тип данных для Object Property
 export type Object = components['schemas']['ObjectProperty'];
 
 // -----  Object Property ----- //
@@ -49,7 +49,7 @@ export type Object = components['schemas']['ObjectProperty'];
 
 // -----  Goods ----- //
 
-// Тип данных для Команды
+// Тип данных для Goods
 export type Good = components['schemas']['Good'];
 export type GoodsType = components['schemas']['GoodsType'];
 
@@ -58,11 +58,35 @@ export type GoodsType = components['schemas']['GoodsType'];
 
 // -----  Consumable ----- //
 
-// Тип данных для Команды
+// Тип данных для Consumable
 export type Consumable = components['schemas']['Consumable'];
 export type ConsumableType = components['schemas']['ConsumableType'];
 
 // -----  Consumable ----- //
+
+
+// -----  Properties Building ----- //
+
+// Тип данных для Properties Building
+export type PropertiesBuilding = components['schemas']['BuildingProperty'];
+
+// -----  Properties Building ----- //
+
+
+// -----  Properties Cluster ----- //
+
+// Тип данных для Properties Cluster
+export type PropertiesCluster = components['schemas']['ClusterProperty'];
+
+// -----  Properties Cluster ----- //
+
+
+// -----  Properties Entrance ----- //
+
+// Тип данных для Properties Entrance
+export type PropertiesEntrance = components['schemas']['EntranceProperty'];
+
+// -----  Properties Entrance ----- //
 
 // Тип состояния Формы (создвть | изменить)
 export enum FormMode {
