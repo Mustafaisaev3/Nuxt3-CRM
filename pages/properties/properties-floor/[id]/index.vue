@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useFetch, useRoute } from '#imports'
-import PropertiesEntranceForm from '~/components/properties/properties-entrance/PropertiesEntranceForm.vue'
+import PropertiesFloorForm from '~/components/properties/properties-floor/PropertiesFloorForm.vue'
 import Modal from '~/components/ui/modal/Modal.vue'
 import { API_BASE_URL } from '~/constants'
-import { removePropertiesEntrance } from '~/lib/api/properties'
+import { removePropertiesFloor } from '~/lib/api/properties'
 import { authStore } from '~/stores/auth'
 import { uiStore } from '~/stores/ui'
 import { FormMode } from '~/types'
@@ -14,19 +14,19 @@ const auth = authStore();
 const { openConfirmationModal } = uiStore();
 
 
-const { data: propertiesEntranceData, pending: propertiesEntrancePending } =
+const { data: propertiesFloorData, pending: propertiesFloorPending } =
   useFetch(
-    new URL(`${API_BASE_URL}/properties-entrance/${id}`).toString(),
+    new URL(`${API_BASE_URL}/properties-floor/${id}`).toString(),
     {
       method: 'GET',
     },
   );
-console.log(propertiesEntranceData)
-// Функция для удаления Entrance
+console.log(propertiesFloorData)
+// Функция для удаления Floor
 const handleDeletePropertiesCluster = () => {
-  openConfirmationModal(`Вы уверенны что хотите удалить Подъезд?`, async () => {
-    await removePropertiesEntrance(auth.currentUser!.token, id)
-    await navigateTo(`/properties/properties-entrance`)
+  openConfirmationModal(`Вы уверенны что хотите удалить Этаж?`, async () => {
+    await removePropertiesFloor(auth.currentUser!.token, id)
+    await navigateTo(`/properties/properties-floor`)
   })
 }
 
@@ -43,40 +43,40 @@ const openModal = () => {
     <Head>
       <title>
         {{
-          propertiesEntranceData && propertiesEntranceData.entrance
-            ? propertiesEntranceData.entrance.entranceNumber
-            : 'Loading the Properties Entrance...'
+          propertiesFloorData && propertiesFloorData.floor
+            ? propertiesFloorData.floor.floorNumber
+            : 'Loading the Properties Floor...'
         }}
       </title>
     </Head>
 
     <TenantJumbotron
-      v-if="propertiesEntranceData && propertiesEntranceData.entrance"
-      :tenant="propertiesEntranceData.entrance.entranceNumber"
+      v-if="propertiesFloorData && propertiesFloorData.floor"
+      :tenant="propertiesFloorData.floor.floorNumber"
     />
 
     <TheContainer>
       <section class="bg-white dark:bg-gray-900">
-        <p v-if="propertiesEntrancePending" class="mb-8">Loading the Properties Entrance...</p>
+        <p v-if="propertiesFloorPending" class="mb-8">Loading the Properties Floor...</p>
         <div
           class="py-8 px-4 mx-auto max-w-2xl lg:py-16"
-          v-else-if="propertiesEntranceData && propertiesEntranceData.entrance"
+          v-else-if="propertiesFloorData && propertiesFloorData.floor"
         >
           <p
             class="mb-4 text-xl font-extrabold leading-none text-gray-900 md:text-2xl dark:text-white"
           >
             <a
               :href="`/@${encodeURIComponent(
-                propertiesEntranceData.entrance.author.username,
+                propertiesFloorData.floor.author.username,
               )}`"
             >
               <img
-                :data-src="propertiesEntranceData.entrance.author.image"
-                :src="propertiesEntranceData.entrance.author.image"
+                :data-src="propertiesFloorData.floor.author.image"
+                :src="propertiesFloorData.floor.author.image"
                 alt="изображение профиля автора"
                 class="inline-block align-middle h-8 w-8 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
               />
-              @{{ propertiesEntranceData.entrance.author.username }}
+              @{{ propertiesFloorData.floor.author.username }}
             </a>
           </p>
           <h2
@@ -94,19 +94,19 @@ const openModal = () => {
               <dd
                 class="mb-4 font-light text-gray-500 sm:mb-5 dark:text-gray-400"
               >
-                {{ propertiesEntranceData.entrance.entranceNumber }}
+                {{ propertiesFloorData.floor.floorNumber }}
               </dd>
             </div>
             <div>
               <dt
                 class="mb-2 font-semibold leading-none text-gray-900 dark:text-white"
               >
-                Фото плана Подъезда
+                Фото плана Этажа
               </dt>
               <dd
                 class="mb-4 font-light text-gray-500 sm:mb-5 dark:text-gray-400"
               >
-                {{ propertiesEntranceData.entrance.entrancePlanImage }}
+                {{ propertiesFloorData.floor.floorPlanImage }}
               </dd>
             </div>
           </dl>
@@ -136,7 +136,7 @@ const openModal = () => {
               Изменить
             </button>
             <button
-              @click="handleDeletePropertiesCluster"
+              @click="handleDeletePropertiesFloor"
               type="button"
               class="inline-flex items-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
             >
@@ -160,10 +160,10 @@ const openModal = () => {
         </div>
       </section>
     </TheContainer>
-    <!-- Модальное окно для изменения Properties Entrance -->
+    <!-- Модальное окно для изменения Properties Floor -->
     <Modal ref="modal">
-      <PropertiesEntranceForm :author="auth.currentUser" :propertiesEntrance="propertiesEntranceData.entrance" :mode="FormMode.UPDATE"/>
+      <PropertiesFloorForm :author="auth.currentUser" :propertiesFloor="propertiesFloorData.floor" :mode="FormMode.UPDATE"/>
     </Modal>
-    <!-- Модальное окно для изменения Properties Entrance -->
+    <!-- Модальное окно для изменения Properties Floor -->
   </div>
 </template>

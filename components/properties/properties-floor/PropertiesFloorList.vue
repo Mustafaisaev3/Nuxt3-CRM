@@ -1,11 +1,11 @@
 
 <script setup lang="ts">
 //import { defineProps } from 'vue';
-import type { PropertiesEntrance } from '~/types'
+import type { PropertiesFloor } from '~/types'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
-    propertiesEntrances: PropertiesEntrance[];
+    propertiesFloors: PropertiesFloor[];
 }>();
 </script>
 
@@ -17,10 +17,10 @@ const props = defineProps<{
           <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" class="px-6 py-3">
-                Номер Подъезда
+                Номер этажа
               </th>
               <th scope="col" class="px-6 py-3">
-                Фото плана Подъезда
+                Фото плана Этажа
               </th>
               <th scope="col" class="px-6 py-3">
                 Сайт
@@ -28,19 +28,19 @@ const props = defineProps<{
             </tr>
           </thead>
           <tbody
-            v-for="propertiesEntrance in propertiesEntrances"
-            :key="propertiesEntrance.id"
+            v-for="propertiesFloor in propertiesFloors"
+            :key="propertiesFloor.id"
             class="border-t border-gray-200 py-6"
             >
             <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
               <td class="px-6 py-4">
-                <h1 class="font-bold text-lg mb-1 text-gray-700">{{ propertiesEntrance.entranceNumber }}</h1>
+                <h1 class="font-bold text-lg mb-1 text-gray-700">{{ propertiesFloor.floorNumber }}</h1>
               </td>
               <td class="px-6 py-4">
-                <h1 class="font-bold text-lg mb-1 text-gray-700">{{ propertiesEntrance.entrancePlanImage }}</h1>
+                <h1 class="font-bold text-lg mb-1 text-gray-700">{{ propertiesFloor.floorPlanImage }}</h1>
               </td>
               <td class="px-6 py-4">
-                <a :href="`/properties/properties-entrance/${propertiesEntrance.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><span class="text-xs font-light text-gray-400">Подробнее.{{ propertiesEntrance.id }}</span></a>
+                <a :href="`/properties/properties-floor/${propertiesFloor.id}`" class="font-medium text-blue-600 dark:text-blue-500 hover:underline"><span class="text-xs font-light text-gray-400">Подробнее.{{ propertiesFloor.id }}</span></a>
               </td>
             </tr>
           </tbody>

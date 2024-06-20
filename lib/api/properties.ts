@@ -157,7 +157,7 @@ export const removePropertiesCluster = (
 
 
 // ----------------------------------------------- //
-// -------------  Properties ENTRANCE ------------- //
+// -------------  Properties ENTRANCE ------------ //
 // ----------------------------------------------- //
 
 // Типы ответов на запросы к API для получения Properties Entrance по ID
@@ -229,5 +229,82 @@ export const removePropertiesEntrance = (
   };
 
 // ----------------------------------------------- //
-// -------------  Properties ENTRANCE ------------- //
+// -------------  Properties ENTRANCE ------------ //
+// ----------------------------------------------- //
+
+
+// ----------------------------------------------- //
+// --------------  Properties FLOOR -------------- //
+// ----------------------------------------------- //
+
+// Типы ответов на запросы к API для получения Properties Floor по ID
+export type GetPropertiesFloorsResponse =
+  paths['/properties-floor']['get']['responses']['200']['content']['application/json'];
+export type GetPropertiesFloorResponse =
+  paths['/properties-floor/{id}']['get']['responses']['200']['content']['application/json'];
+
+// Типы запросов для создания Properties Floor и обновления Properties Floor
+type CreatePropertiesFloorsRequest =
+  paths['/properties-floor']['post']['requestBody']['content']['application/json'];
+type UpdatePropertiesFloorRequest =
+  paths['/properties-floor/{id}']['put']['requestBody']['content']['application/json'];
+
+// Тип ответа при создании Properties Floor и обновлении Properties Floor
+export type CreatePropertiesFloorResponse =
+paths['/properties-floor']['post']['responses']['201']['content']['application/json'];
+export type UpdatePropertiesFloorResponse =
+paths['/properties-floor/{id}']['put']['responses']['200']['content']['application/json'];
+
+
+// Функция для создания нового Properties Floor
+export const createPropertiesFloor = (
+    token: string,
+    // pfo: CreatePropertiesFloorsRequest
+    pfo: any
+  ) => {
+    return $fetch<CreatePropertiesFloorResponse>(`${API_BASE_URL}/properties-floor`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${encodeURIComponent(token)}`,
+      },
+      body: { floor: pfo },
+    });
+  };
+
+// Функция для обновления данных Properties Floor
+export const updatePropertiesFloor = (
+    token: string,
+    id: string | number,
+    pfo: UpdatePropertiesFloorRequest['properties-floor']
+  ) => {
+    return $fetch<UpdatePropertiesFloorResponse>(`${API_BASE_URL}/properties-floor/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${encodeURIComponent(token)}`,
+      },
+      body: { floor : pfo },
+    });
+  };
+
+// Функция для удаления Properties Floor
+export const removePropertiesFloor = (
+    token: string,
+    propertiesFloorId: string
+  ) => {
+    return $fetch(
+      `${API_BASE_URL}/properties-floor/${propertiesFloorId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${encodeURIComponent(token)}`,
+        },
+      }
+    );
+  };
+
+// ----------------------------------------------- //
+// --------------  Properties FLOOR -------------- //
 // ----------------------------------------------- //

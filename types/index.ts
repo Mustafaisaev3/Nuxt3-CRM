@@ -88,6 +88,14 @@ export type PropertiesEntrance = components['schemas']['EntranceProperty'];
 
 // -----  Properties Entrance ----- //
 
+
+// -----  Properties Floor ----- //
+
+// Тип данных для Properties Floor
+export type PropertiesFloor = components['schemas']['FloorProperty'];
+
+// -----  Properties Floor ----- //
+
 // Тип состояния Формы (создвть | изменить)
 export enum FormMode {
     CREATE,

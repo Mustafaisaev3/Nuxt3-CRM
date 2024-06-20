@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { navigateTo } from 'nuxt/app'
-import PropertiesEntranceForm from '~/components/properties/properties-entrance/PropertiesEntranceForm.vue'
+import PropertiesFloorForm from '~/components/properties/properties-floor/PropertiesFloorForm.vue'
 import { APP_NAME } from '~/constants/index'
 import { authStore } from '~/stores/auth'
 
@@ -10,19 +10,19 @@ const auth = authStore();
 if (!auth.isAuthenticated) {
   await navigateTo('/');
 }
-const title = APP_NAME.toLocaleLowerCase();
+const title = APP_NAME.toLocaleLowerCase()
 </script>
 
 <template>
   <div class='mt-20'>
     <Head>
       <title>
-        Новый Подъезд - {{ title }}
+        Новый Этаж - {{ title }}
       </title>
     </Head>
     <TheContainer>
       <div class="w-full md:w-10/12 md:mx-auto">
-        <PropertiesEntranceForm :author="auth.currentUser" />
+        <PropertiesFloorForm :author="auth.currentUser" />
       </div>
     </TheContainer>
   </div>
