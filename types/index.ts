@@ -96,6 +96,29 @@ export type PropertiesFloor = components['schemas']['FloorProperty'];
 
 // -----  Properties Floor ----- //
 
+// -----  Properties Room ----- //
+
+// Тип данных для Properties Room
+export type PropertiesRoom = components['schemas']['Room'];
+
+// -----  Properties Room ----- //
+
+
+// -----  Properties Purposepremises ----- //
+
+// Тип данных для Properties Purposepremises
+export type PropertiesPurposepremises = components['schemas']['PurposePremises'];
+
+// -----  Properties Purposepremises ----- //
+
+
+// -----  Properties Territory ----- //
+
+// Тип данных для Properties Territory
+export type PropertiesTerritory = components['schemas']['Territory'];
+
+// -----  Properties Territory ----- //
+
 // Тип состояния Формы (создвть | изменить)
 export enum FormMode {
     CREATE,
