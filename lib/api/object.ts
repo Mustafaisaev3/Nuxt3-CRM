@@ -28,7 +28,7 @@ export const createObject = (
         'Content-Type': 'application/json',
         Authorization: `Token ${encodeURIComponent(token)}`,
       },
-      body: { team: obj },
+      body: { object: obj },
     });
   };
 
@@ -44,7 +44,7 @@ export const updateObject = (
         'Content-Type': 'application/json',
         Authorization: `Token ${encodeURIComponent(token)}`,
       },
-      body: { team: obj },
+      body: { object: obj },
     });
   };
   

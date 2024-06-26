@@ -1,12 +1,11 @@
 <template>
   <div class="relative w-auto" ref="wrapper">
     <div class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" @click="toggleOptions">
-      <span v-if="modelValue.length > 0">Выбранно - {{ modelValue.length }}</span>
+      <span v-if="modelValue">{{ getSelectedOptionLabel }}</span>
       <span v-else>{{ label }}</span>
     </div>
     <div class="bg-gray-50 border border-gray-300 text-gray-900 max-h-40 overflow-y-auto text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500" v-if="showOptions">
-      <div class="p-2 cursor-pointer hover:bg-[#6B7280] hover:text-[#ffffff]" v-for="(option, index) in options" :key="index" @click="toggleOption(option)"
-        :class="{ 'text-[#1dff1d] font-semibold': modelValue.includes(option.value || option[optionValueKey]) }">
+      <div class="p-2 cursor-pointer hover:bg-[#6B7280] hover:text-[#ffffff]" v-for="(option, index) in options" :key="index" @click="selectOption(option)">
         {{ option.label || option[optionLabelKey] }}
       </div>
     </div>
@@ -14,13 +13,13 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 
 export default {
   props: {
     modelValue: {
-      type: Array,
-      default: () => []
+      type: [String, Number],
+      default: null
     },
     options: {
       type: Array,
@@ -43,33 +42,18 @@ export default {
     const wrapper = ref(null)
     const showOptions = ref(false)
 
+    const getSelectedOptionLabel = computed(() => {
+      const selectedOption = props.options.find(option => option[props.optionValueKey] === props.modelValue)
+      return selectedOption ? selectedOption[props.optionLabelKey] : ''
+    })
+
     const toggleOptions = () => {
       showOptions.value = !showOptions.value
     }
 
-    const toggleOption = (option) => {
-      let newValue = [...props.modelValue]
-
-      if (props.optionValueKey) {
-        if (props.modelValue.includes(option[props.optionValueKey])) {
-          newValue = newValue.filter(o => o !== option[props.optionValueKey])
-        } else {
-          newValue.push(option[props.optionValueKey])
-        }
-      } else if (!props.optionValueKey) {
-        const foundIndex = props.modelValue.findIndex(o => o.id === option.id);
-
-        if (foundIndex !== -1) {
-          // Объект найден, удаляем его из массива
-          newValue.splice(foundIndex, 1);
-        } else {
-          // Объекта нет в массиве, добавляем его
-          newValue.push(option)
-        }
-      }
-
-      console.log(option, newValue, 'sjsjsjsjsj')
-      emit('update:modelValue', [...newValue])
+    const selectOption = (option) => {
+      emit('update:modelValue', option[props.optionValueKey])
+      showOptions.value = false
     }
 
     const handleClickOutside = (event) => {
@@ -90,7 +74,8 @@ export default {
       wrapper,
       showOptions,
       toggleOptions,
-      toggleOption
+      selectOption,
+      getSelectedOptionLabel
     }
   }
 }

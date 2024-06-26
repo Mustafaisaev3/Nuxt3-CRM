@@ -537,3 +537,79 @@ export const removePropertiesTerritory = (
 // ----------------------------------------------- //
 // ------------  Properties TERRITORY ------------ //
 // ----------------------------------------------- //
+
+
+// ----------------------------------------------- //
+// -----------  Properties OBJECTTYPE ------------ //
+// ----------------------------------------------- //
+
+// Типы ответов на запросы к API для получения Object Types по ID
+export type GetObjectsTypeResponse =
+  paths['/properties-objecttypenew']['get']['responses']['200']['content']['application/json'];
+export type GetObjectTypeResponse =
+  paths['/properties-objecttypenew/{id}']['get']['responses']['200']['content']['application/json'];
+
+// Типы запросов для создания и обновления Object Types
+type CreateObjectsTypesRequest =
+paths['/properties-objecttypenew']['post']['requestBody']['content']['application/json'];
+type UpdateObjectTypesRequest =
+paths['/properties-objecttypenew/{id}']['put']['requestBody']['content']['application/json'];
+
+// Тип ответа при создания и обновления Object Types
+export type CreateObjectTypeseResponse =
+  paths['/properties-objecttypenew']['post']['responses']['201']['content']['application/json'];
+export type UpdateObjectTypesResponse =
+  paths['/properties-objecttypenew/{id}']['put']['responses']['200']['content']['application/json'];
+
+
+// Функция для создания новой Object Type
+export const createObjectType = (
+  token: string,
+  oto: CreateObjectsTypesRequest
+) => {
+  return $fetch<CreateObjectTypeseResponse>(`${API_BASE_URL}/properties-objecttypenew`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${encodeURIComponent(token)}`,
+    },
+    body: { objecttypenew: oto },
+  });
+};
+
+// Функция для обновления данных Object Type
+export const updateObjectType = (
+  token: string,
+  id: string | number,
+  oto: UpdateObjectTypesRequest
+) => {
+  return $fetch<UpdateObjectTypesResponse>(`${API_BASE_URL}/properties-objecttypenew/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Token ${encodeURIComponent(token)}`,
+    },
+    body: { objecttypenew: oto },
+  });
+};
+
+// Функция для удаления Object Type
+export const removeObjectType = (
+  token: string,
+  objectTypeId: string
+) => {
+  return $fetch(
+    `${API_BASE_URL}/properties-objecttypenew/${objectTypeId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${encodeURIComponent(token)}`,
+      },
+    }
+  );
+};
+
+// ----------------------------------------------- //
+// -----------  Properties OBJECTTYPE ------------ //
+// ----------------------------------------------- //

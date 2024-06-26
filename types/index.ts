@@ -119,6 +119,14 @@ export type PropertiesTerritory = components['schemas']['Territory'];
 
 // -----  Properties Territory ----- //
 
+
+// -----  Properties Object Type New ----- //
+
+// Тип данных для Properties Object Type New
+export type PropertiesObjectTypeNew = components['schemas']['ObjectTypeNew'];
+
+// -----  Properties Object Type New ----- //
+
 // Тип состояния Формы (создвть | изменить)
 export enum FormMode {
     CREATE,

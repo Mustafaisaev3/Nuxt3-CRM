@@ -8,6 +8,8 @@ import { createObject, updateObject } from '~/lib/api/object'
 import type { User } from '~/types'
 import { FormMode } from '~/types'
 import MultiSelect from '../ui/select/MultiSelect.vue'
+import Select from '../ui/select/Select.vue'
+import { API_BASE_URL } from '~/constants'
 
 const props = defineProps({
   author: {
@@ -50,18 +52,32 @@ const validationSchema = toTypedSchema(
   zod.object({
     objectAddress: zod.string().nonempty('This is required'),
     cadastreNumber: zod.string().nonempty('This is required'),
-    buildingType: zod.string().nonempty('This is required'),
-    purposePremises: zod.string().nonempty('This is required'),
-    technicalFeatures: zod.string(),
-    room: zod.number().array().min(1),
-    floor: zod.number().array().min(1),
-    entrance: zod.number().array().min(1),
-    building: zod.number().array().min(1),
-    territory: zod.number().array().min(1),
-    cluster: zod.number().array().min(1),
+    buildingType: zod.number(),
+    purposePremises: zod.number(),
+    technicalFeatures: zod.string().nonempty('This is required'),
+    room: zod.array(zod.number()),
+    floor: zod.array(zod.number()),
+    entrance: zod.array(zod.number()),
+    building: zod.array(zod.number()),
+    territory: zod.array(zod.number()),
+    cluster: zod.array(zod.number()),
   })
+  
+  // -------- Вариант с Объектом (не id) ---------- //
+  // zod.object({
+  //   objectAddress: zod.string().nonempty('This is required'),
+  //   cadastreNumber: zod.string().nonempty('This is required'),
+  //   buildingType: zod.string().nonempty('This is required'),
+  //   technicalFeatures: zod.string().nonempty('This is required'),
+  //   purposePremises: zod.array(zod.record(zod.unknown())),
+  //   room: zod.array(zod.record(zod.unknown())),
+  //   floor: zod.array(zod.record(zod.unknown())),
+  //   entrance: zod.array(zod.record(zod.unknown())),
+  //   building: zod.array(zod.record(zod.unknown())),
+  //   territory: zod.array(zod.record(zod.unknown())),
+  //   cluster: zod.array(zod.record(zod.unknown())),
+  // })
 );
-
 const { handleSubmit, errors } = useForm({
   validationSchema,
   initialValues: defaultValues, // Добавляем данные Team, в случае если мы изменяем Object
@@ -91,7 +107,7 @@ const onSubmit = handleSubmit(async (values) => {
       const response = await createObject(props.author.token, {
         objectAddress: values.objectAddress,
         cadastreNumber: values.cadastreNumber,
-        buildingType: values.buildingType,
+        building_type: values.buildingType,
         purposePremises: values.purposePremises, 
         technicalFeatures: values.technicalFeatures,
         room: values.room,
@@ -111,7 +127,7 @@ const onSubmit = handleSubmit(async (values) => {
       const response = await updateObject(props.author.token, props.object!.id, {
         objectAddress: values.objectAddress,
         cadastreNumber: values.cadastreNumber,
-        buildingType: values.buildingType,
+        building_type: values.buildingType,
         purposePremises: values.purposePremises, 
         technicalFeatures: values.technicalFeatures,
         room: values.room,
@@ -135,70 +151,56 @@ const onSubmit = handleSubmit(async (values) => {
   }
 });
 
-interface roomTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Object Types
+const { data: objectTypesData, pending: objectTypesPending } =
+  await useFetch(`${API_BASE_URL}/properties-objecttypenew`, {
+    method: 'GET',
+});
 
-interface floorTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Floors
+const { data: floorsData, pending: floorsPending } =
+  await useFetch(`${API_BASE_URL}/properties-floor`, {
+    method: 'GET',
+});
 
-interface entranceTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Clusters
+const { data: clustersData, pending: clustersPending } =
+  await useFetch(`${API_BASE_URL}/properties-cluster`, {
+    method: 'GET',
+});
 
-interface buildingTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Entrance
+const { data: entrancesData, pending: entrancesPending } =
+  await useFetch(`${API_BASE_URL}/properties-entrance`, {
+    method: 'GET',
+});
 
-interface territoryTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Rooms
+const { data: roomsData, pending: roomsPending } =
+  await useFetch(`${API_BASE_URL}/properties-room`, {
+    method: 'GET',
+});
 
-interface clusterTypeOption {
-  value: string | number;
-  label: string;
-}
+// Получаем Purposepremises
+const { data: purposepremisesData, pending: purposepremisesPending } =
+  await useFetch(`${API_BASE_URL}/properties-purposepremises`, {
+    method: 'GET',
+});
 
-const roomOptions: roomTypeOption[] = [
-  { value: 1, label: 'Комната 1' },
-  { value: 2, label: 'Комната 2' }
-];
+// Получаем Territories
+const { data: territoriesData, pending: territoriesPending } =
+  await useFetch(`${API_BASE_URL}/properties-territory`, {
+    method: 'GET',
+});
 
-const floorOptions: floorTypeOption[] = [
-  { value: 1, label: 'Подвал' },
-  { value: 2, label: 'Этаж - 1' },
-  { value: 3, label: 'Этаж - 2' },
-  { value: 4, label: 'Этаж - 3' },
-];
-
-const entranceOptions: entranceTypeOption[] = [
-  { value: 1, label: 'Подьезд 1' },
-  { value: 2, label: 'Подьезд 2' }
-];
-
-const buildingOptions: buildingTypeOption[] = [
-  { value: 1, label: 'Строение 1' },
-  { value: 2, label: 'Строение 2' }
-];
-
-const territoryOptions: territoryTypeOption[] = [
-  { value: 1, label: 'Территория 1' },
-  { value: 2, label: 'Территория 2' }
-];
-
-const clusterOptions: clusterTypeOption[] = [
-  { value: 1, label: 'Кластер 1' },
-  { value: 2, label: 'Кластер 2' }
-];
+// Получаем Buildings
+const { data: buildingsData, pending: buildingsPending } =
+  await useFetch(`${API_BASE_URL}/properties-building`, {
+    method: 'GET',
+});
 
 
-
+console.log(floorsData ,clustersData ,entrancesData ,roomsData ,purposepremisesData ,territoriesData ,buildingsData)
 
 // Меняем Title кнопки в зависимости от mode формы
 const FormBtnTitle = computed(() => {
@@ -230,22 +232,22 @@ const FormBtnTitle = computed(() => {
         <span class="text-red-500">{{ errors.cadastreNumber }}</span>
       </div>
       <div class="mb-4">
-        <input
-          v-model="buildingType"
-          name="buildingType"
-          type="text"
-          placeholder="Тип здания"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        <Select 
+          v-model="buildingType" 
+          :options="objectTypesData.objecttypenews" 
+          :optionLabelKey="'nameObjectType'"
+          :optionValueKey="'id'"
+          :label="'Тип здания'"
         />
         <span class="text-red-500">{{ errors.buildingType }}</span>
       </div>
       <div class="mb-4">
-        <input
-          v-model="purposePremises"
-          name="purposePremises"
-          type="text"
-          placeholder="Назначение помещения"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        <Select 
+          v-model="purposePremises" 
+          :options="purposepremisesData.purposepremisess" 
+          :optionLabelKey="'namePurposePremises'"
+          :optionValueKey="'id'"
+          :label="'Назначение объекта'"
         />
         <span class="text-red-500">{{ errors.purposePremises }}</span>
       </div>
@@ -262,9 +264,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="room" 
-          :options="roomOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="roomsData.rooms" 
+          :optionLabelKey="'roomNumber'"
+          :optionValueKey="'id'"
           :label="'Выберите Комнату'"
         />
         <span class="text-red-500">{{ errors.room }}</span>
@@ -272,9 +274,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="floor" 
-          :options="floorOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="floorsData.floors" 
+          :optionLabelKey="'floorNumber'"
+          :optionValueKey="'id'"
           :label="'Выберите Этаж'"
         />
         <span class="text-red-500">{{ errors.floor }}</span>
@@ -282,9 +284,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="entrance" 
-          :options="entranceOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="entrancesData.entrances" 
+          :optionLabelKey="'entranceNumber'"
+          :optionValueKey="'id'"
           :label="'Выберите Подьезд'"
         />
         <span class="text-red-500">{{ errors.entrance }}</span>
@@ -292,9 +294,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="building" 
-          :options="buildingOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="buildingsData.buildings" 
+          :optionLabelKey="'buildingName'"
+          :optionValueKey="'id'"
           :label="'Выберите Здание'"
         />
         <span class="text-red-500">{{ errors.building }}</span>
@@ -302,9 +304,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="territory" 
-          :options="territoryOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="territoriesData.territorys" 
+          :optionLabelKey="'territoryDistrict'"
+          :optionValueKey="'id'"
           :label="'Выберите Территорию'"
         />
         <span class="text-red-500">{{ errors.territory }}</span>
@@ -312,9 +314,9 @@ const FormBtnTitle = computed(() => {
       <div class="mb-4">
         <MultiSelect 
           v-model="cluster" 
-          :options="clusterOptions" 
-          :optionValueKey="'value'"
-          :optionLabelKey="'label'"
+          :options="clustersData.clusters" 
+          :optionLabelKey="'clusterCity'"
+          :optionValueKey="'id'"
           :label="'Выберите Кластер'"
         />
         <span class="text-red-500">{{ errors.cluster }}</span>
@@ -329,5 +331,121 @@ const FormBtnTitle = computed(() => {
         {{ FormBtnTitle }}
       </button>
     </fieldset>
+
+    <!--  Вариант с Объектом (не id) -->
+    <!-- <fieldset :disabled="isSubmitting" class="space-y-4">
+      <div class="mb-4">
+        <input
+          v-model="objectAddress"
+          name="objectAddress"
+          type="text"
+          placeholder="Адрес обьекта"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        />
+        <span class="text-red-500">{{ errors.objectAddress }}</span>
+      </div>
+      <div class="mb-4">
+        <input
+          v-model="cadastreNumber"
+          name="cadastreNumber"
+          type="text"
+          placeholder="Кадастровый номер"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        />
+        <span class="text-red-500">{{ errors.cadastreNumber }}</span>
+      </div>
+      <div class="mb-4">
+        <input
+          v-model="buildingType"
+          name="buildingType"
+          type="text"
+          placeholder="Тип здания"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        />
+        <span class="text-red-500">{{ errors.buildingType }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="purposePremises" 
+          :options="purposepremisesData.purposepremisess" 
+          :optionLabelKey="'namePurposePremises'"
+          :label="'Назначение объекта'"
+        />
+        <span class="text-red-500">{{ errors.purposePremises }}</span>
+      </div>
+      <div class="mb-4">
+        <input
+          v-model="technicalFeatures"
+          name="technicalFeatures"
+          type="text"
+          placeholder="Технические особенности"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+        />
+        <span class="text-red-500">{{ errors.technicalFeatures }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="room" 
+          :options="roomsData.rooms" 
+          :optionLabelKey="'roomNumber'"
+          :label="'Выберите Комнату'"
+        />
+        <span class="text-red-500">{{ errors.room }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="floor" 
+          :options="floorsData.floors" 
+          :optionLabelKey="'floorNumber'"
+          :label="'Выберите Этаж'"
+        />
+        <span class="text-red-500">{{ errors.floor }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="entrance" 
+          :options="entrancesData.entrances" 
+          :optionLabelKey="'entranceNumber'"
+          :label="'Выберите Подьезд'"
+        />
+        <span class="text-red-500">{{ errors.entrance }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="building" 
+          :options="buildingsData.buildings" 
+          :optionLabelKey="'buildingName'"
+          :label="'Выберите Здание'"
+        />
+        <span class="text-red-500">{{ errors.building }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="territory" 
+          :options="territoriesData.territorys" 
+          :optionLabelKey="'territoryDistrict'"
+          :label="'Выберите Территорию'"
+        />
+        <span class="text-red-500">{{ errors.territory }}</span>
+      </div>
+      <div class="mb-4">
+        <MultiSelect 
+          v-model="cluster" 
+          :options="clustersData.clusters" 
+          :optionLabelKey="'clusterCity'"
+          :label="'Выберите Кластер'"
+        />
+        <span class="text-red-500">{{ errors.cluster }}</span>
+      </div>
+
+
+      <button
+        :disabled="isSubmitting"
+        class="float-right px-6 py-3 text-base text-white bg-gray-500 border border-gray rounded-md hover:bg-gray-600"
+        :class="{ 'bg-gray-300 cursor-not-allowed': isSubmitting }"
+      >
+        {{ FormBtnTitle }}
+      </button>
+    </fieldset> -->
   </form>
 </template>
